@@ -1,16 +1,37 @@
-# KWTL_TimeSeriesDemo
+ï»¿# KWTL_TimeSeriesDemo
  the time series demo of KWTL_Model
 
-Ç°¶Ë:KWTL_Model
-<br />
-ºó¶Ë:KWTL_django
-<br />
-[django²Î¿¼×ÊÁÏ](https://www.runoob.com/django/django-tutorial.html)
-<br />
-KWTL_djangoÄ¿Â¼Ê¹ÓÃ python manage.py runserverÔËĞĞºó¶Ë(ĞèÒªÓĞpythonºÍDjangoµÄ»·¾³)
-<br />
-<h1>ºó¶ËÌí¼Ó½Ó¿Ú:</h1>
-KWTL_django/app1/views.pyÌí¼Óºó¶Ë´¦Àíº¯Êı
-<br />
-KWTL_django/KWTL_django/urls.py  ÄÚÌí¼Ó½Ó¿Ú(¿É²Î¿¼views.load_data¸ñÊ½)
+å‰ç«¯:KWTL_Model
 
+åç«¯:KWTL_django
+
+[djangoå‚è€ƒèµ„æ–™](https://www.runoob.com/django/django-tutorial.html)
+
+# åç«¯è¿è¡Œ
+KWTL_djangoç›®å½•ä½¿ç”¨ python manage.py runserver(éœ€è¦æœ‰pythonå’ŒDjangoçš„ç¯å¢ƒ)
+
+# åç«¯æ·»åŠ æ¥å£:
+ KWTL_django/app1/views.pyæ·»åŠ åç«¯å¤„ç†å‡½æ•°
+
+KWTL_django/KWTL_django/urls.py  å†…æ·»åŠ æ¥å£(å¯å‚è€ƒviews.load_dataæ ¼å¼)
+
+```
+    urlpatterns = [
+        path('admin/', admin.site.urls),
+        path('load_data/', views.load_data),
+        path('', TemplateView.as_view(template_name='index.html'), name='index'),
+        #example
+        path('æ¥å£/', views.æ¥å£),
+    ]
+```
+## å‰ç«¯httpæ•°æ®è¯·æ±‚æ ¼å¼
+```
+this.$http.get('http://127.0.0.1:8000/æ¥å£å‚æ•°)
+        .then(function(response){//å¤„ç†è¿”å›ç»“æœ     
+                alert(response.data)
+         })
+        .catch((error)=>{//å¼‚å¸¸å¤„ç†
+            alert(error)
+        }
+        )
+```
