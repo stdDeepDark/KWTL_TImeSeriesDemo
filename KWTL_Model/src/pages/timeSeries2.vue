@@ -5,71 +5,74 @@
         
         <!-- 主体 -->
         <div class="main">
-          <div class="left">
-             <l-map class="vue-leaflet" :zoom="zoom" :center="center">
-              <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
-              <!--<v-polyline-decorator :paths="[latlngs]" :patterns="patterns"></v-polyline-decorator>
-             --> 
-               <!-- <l-grid-layer :zIndex="zIndex"> </l-grid-layer>  --> 
-                  <l-polyline v-for="(polyline,index) in poly_data"
+         <!-- <div id= "container" style="width:200px; height=200px;"></div>
+         -->
+          
+             <l-map style="position:absolute; z-index:0; width:100%;height:100%;" :zoom="zoom" :center="center">
+              <l-tile-layer style="position:absolute;" :url="url" :attribution="attribution"></l-tile-layer>
+
+                  <l-polyline v-for="(polyline,Pindex) in poly_data"
                   :weight="weight" 
-                  @mouseup="lineClick($event, index,polyline)"
-                  :lat-lngs="polyline"
-                  :color="color"></l-polyline>
-                              
-            <!-- <l-grid-layer :zIndex="zIndex_clicked"    >   </l-grid-layer> -->
-            
-               <l-polyline      
-                  
+                  @mouseup="lineClick($event,Pindex,polyline)"
+                  :lat-lngs="polyline.line"
+                  :color="polyline.color"></l-polyline>
+                <!--                    
+               <l-polyline  
+               style="position:absolute; z-index:5"              
               :weight="weight_clicked"
               :lat-lngs="poly_data_clicked"
               :color="color_clicked"></l-polyline> 
-            
+              -->
             </l-map>
+            <div class="menu ">
+              <div style="margin:5px">
+                    <a class="font-bg ">Map kind:</a>
+                    <a class="font-show">{{current_kind}}</a>
+              </div>
+              <div style="margin:5px">
+                    <a class="font-bg">Name:</a>
+                    <a class="font-show">{{name}}</a>
+              </div>
+              <div style="margin:5px">
+                    <a class="font-bg ">Length:</a>
+                    <a class="font-show">{{length}}Km</a>
+              </div>
+              <el-button class="button" style="margin:10px 0" @click="drawRoad"><i style="margin-right:20px"class="el-icon-map-location"></i>Show Road Network</el-button>
+                   
+            </div>
 
-
-            
-                <el-row style=" margin:5px 0;">
-                 <el-col :span="24">
-                   <div  class="grid-content bg-purple allCenter">
-                  <a class="font-show">Map kind:{{current_kind}}-Name:{{name}}-RoadID:{{id}}-Length:{{length}}Km</a>
-                 </div></el-col>
-                </el-row>
-             <el-button plain v-on:click="drawRoad"><i style="margin-right:20px"class="el-icon-map-location"></i>Show Road Network</el-button>
-            
-          </div>
            <div class="right">
-              <ve-line class="chart" :data="chartData" ref="chart1"></ve-line>
-              <el-row>
-                 <el-col :span="24">
-                   <div style=" margin:5px 0px;"class="grid-content bg-purple allCenter">
-                  <i style="margin-right:20px"class="el-icon-time"></i>
-                  <a class="font-show">2015-04 from</a>
-                  <el-input type='number' size="small" style="margin:5px; width:60px" min='1' :max='day2' v-model="day1"></el-input>
-                  <a class="font-show">-</a>
-                  <el-input type="number" size="small" style="margin:5px; width:60px"  min="0" :max="day1==day2?h2:23" v-model="h1"></el-input>
-                  <a class="font-show">:</a>
-                  <el-input type="number" size="small" style="margin:5px; width:60px"  min="0" :max="day1==day2&&h1==h2?m2:59" v-model="m1"></el-input>
-                   <a class="font-show">to</a>
-                  <el-input type='number' size="small" style="margin:5px; width:60px"  :min='day1' max='30'  v-model="day2"></el-input>
-                  <a class="font-show">-</a>
-                  <el-input type="number" size="small" style="margin:5px; width:60px"  :min="day1==day2?h1:0" max="23" v-model="h2"></el-input>
-                  <a class="font-show">:</a>
-                  <el-input type="number" size="small" style="margin:5px; width:60px"  :min="day1==day2&&h1==h2?m1:0" max="59" v-model="m2"></el-input>
-                 </div></el-col>
-                </el-row> 
-                  <div class="block">
-                     <span class="demonstration">预测范围</span>
-                    <el-slider
+
+              <ve-line class="chart" :data="chartData" :extend="chartExtend"></ve-line>
+              
+                   <div style=" margin:5px 0px;"class="block-bg allCenter">
+                    <i style="margin-right:2px"class="el-icon-time"></i>
+                    <a class="font-show">2015-04 from</a>
+                    <el-input type='number' size="small" style="margin:5px; width:60px" min='1' :max='day2' v-model="day1"></el-input>
+                    <a class="font-show">-</a>
+                    <el-input type="number" size="small" style="margin:5px; width:60px"  min="0" :max="day1==day2?h2:23" v-model="h1"></el-input>
+                    <a class="font-show">:</a>
+                    <el-input type="number" size="small" style="margin:5px; width:60px"  min="0" :max="day1==day2&&h1==h2?m2:59" v-model="m1"></el-input>
+                    <a class="font-show">to</a>
+                    <el-input type='number' size="small" style="margin:5px; width:60px"  :min='day1' max='30'  v-model="day2"></el-input>
+                    <a class="font-show">-</a>
+                    <el-input type="number" size="small" style="margin:5px; width:60px"  :min="day1==day2?h1:0" max="23" v-model="h2"></el-input>
+                    <a class="font-show">:</a>
+                    <el-input type="number" size="small" style="margin:5px; width:60px"  :min="day1==day2&&h1==h2?m1:0" max="59" v-model="m2"></el-input>
+                 </div>
+
+                  <div class="block-bg">
+                     <span style="height:30px"class="font-show allCenter">预测范围</span>
+                    <el-slider style="margin-left:20px"
                       v-model="aim"
                       show-input>
                     </el-slider>
                   </div>
 
-              <el-button plain v-on:click="drawChart"><i style="margin-right:20px"class="el-icon-data-line"></i>Update Chart</el-button>
-            </div>
-           
+              <el-button class="button" v-on:click="drawChart"><i style="margin-right:20px"class="el-icon-data-line"></i>Update Chart</el-button>
+            </div> 
         </div>
+        
     </div>
 </template>
 
@@ -94,8 +97,6 @@ import 'echarts/lib/component/legendScroll';
 import VeLine from 'v-charts/lib/line';
 import 'v-charts/lib/style.css';
 
-//import Vue2LeafletPolylineDecorator from 'vue2-leaflet-polylinedecorator'
-
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import { constants } from 'crypto';
@@ -111,12 +112,15 @@ L.Icon.Default.mergeOptions({
 Vue.component('l-map', LMap)
 Vue.component('l-tile-layer', LTileLayer)
 Vue.component('l-polyline', LPolyline)
+//import "https://cdn.bootcss.com/heatmap.js/2.0.2/heatmap.min.js"
+//import "https://cdn.jsdelivr.net/npm/leaflet-heatmap@1.0.0/leaflet-heatmap.min.js"
+//import "./dmap-dist.js"
+//var map = new dmap.Map('container')
 
 export default {
   components:{
     Header,
-    VeLine,
-    //'v-polyline-decorator': Vue2LeafletPolylineDecorator,
+    VeLine
   },
   data () {
     var aim=4
@@ -124,12 +128,36 @@ export default {
       var id=""
       var length=""
       var pinyin=""
-      var poly_data_clicked=[]
       var v_data = [0]
       var map_list =[]
       var day1=1,day2=1,h1=0,m1=0,h2=0,m2=4
       //var that = this
     return {
+      chartExtend: {
+      legend:{
+            textStyle: {
+            color: '#fff',
+          }
+      },
+      yAxis: {
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: '#fff',
+            width: 1
+          }
+        }
+      },
+      xAxis: {
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: '#fff',
+            width: 1
+          }          
+        }
+      }
+      },
       chartData: {
           columns: ['Time', 'real_velocity', 'linear_regression'],
           rows: []
@@ -141,10 +169,11 @@ export default {
       h2:h2,
       m1:m1,
       m2:m2,
+      current_road:-1,
       current_kind:0,
       v_data:v_data,
-      weight:6,
-      weight_clicked:10,
+      weight:4,
+      //weight_clicked:10,
       name:name,
       id:id,
       length:length,
@@ -152,9 +181,10 @@ export default {
       patterns:[],
       latlngs:[],
       zoom: 12,
-      poly_data_clicked,
+      //poly_data_clicked:[],
       center: L.latLng(39.913220,116.419482),
-      url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+      url: "https://api.mapbox.com/styles/v1/stddeepdark/cjy9ocr5u0azu1cplucbsn6hi/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoic3RkZGVlcGRhcmsiLCJhIjoiY2p5OW8zMDI4MDY3bDNtbzRhMG1xeDc0byJ9._NAqdyJueJNsv2D2rSimwQ",
+    //'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       attribution: '© <a href="http://osm.org/copyright">OpenStreetMap</a> Haut-Gis-Org',
       poly_data:[],
       color_clicked:"#F4606C",
@@ -212,60 +242,79 @@ export default {
           this.chartData.rows=rows
        
     },
-    t1_change:function(){
-      console.log(this.time1)
-      alert(this.time1)
-    },
     load_data:function(){
-      this.$http.get('http://127.0.0.1:8000/load_data/?file='+this.id)
+      this.$http.get('http://localhost:8000/load_data/?file='+this.id)
         .then(function(response){
             if(response.data.error_num != 0)
                 alert(response.data.msg)
             else
                 this.v_data = response.data.msg
-                console.log(this.v_data)
+            console.log(response.data.msg)
         })
         .catch((error)=>{
             alert(error)
-        }
-        )
+        })
     },
-    lineClick:function($event,index,polyline){
+    lineClick:function($event,Pindex,polyline){
+                console.log(polyline)
+                let index = polyline.index
                 this.name=roads["features"][index]["properties"]["Name"];
                 var id = roads["features"][index]["properties"]["ID"]
                 this.id=roads["features"][index]["properties"]["MapID"] + "_" + roads["features"][index]["properties"]["Kind"]+"0".repeat(4-id.length) + id;
                 this.length=roads["features"][index]["properties"]["Length"];
                 this.pinyin=roads["features"][index]["properties"]["PinYin"];
-                this.poly_data_clicked=polyline;
+                //this.poly_data_clicked=polyline;
+                if(this.current_road != -1)
+                  this.poly_data[this.current_road]["color"]=this.color
+                this.current_road = Pindex  
+                console.log('befor')
+                this.poly_data[Pindex]["color"]=this.color_clicked
+                console.log('after')
                 this.load_data();  
-               // console.log(this.poly_data_clicked)
+                //console.log(this.poly_data_clicked)
     },
-    drawRoad: function() {
-          if(this.current_kind >= 4)
-            this.current_kind = 1
-          else
-            this.current_kind++
-          var m =[]
-          for(var i = 0; i < roads["features"].length; i++) {
-            if(roads["features"][i]["properties"]["Kind"] == this.current_kind)
-              m.push(i);
-          }
-          this.map_list=m;
-          this.poly_data=[]
+    startDraw:function(){
+      this.poly_data=[]
         for(var i = 0; i < this.map_list.length; i++) {
           let poly_data = [];
           let index = this.map_list[i]
           for(var u = 0; u < roads["features"][index]["geometry"]["coordinates"].length; u++){
             poly_data.push([roads["features"][index]["geometry"]["coordinates"][u][1],roads["features"][index]["geometry"]["coordinates"][u][0]])
          }
-          this.poly_data.push(poly_data)
+          this.poly_data.push({"line":poly_data,'index':index,"color":this.color})
         }
-        this.poly_data_clicked=[]
-                //console.log(this.poly_data_clicked)
-                //console.log(this.poly_data)
+        //this.poly_data_clicked=[]
+    },
+    drawRoad: function() {
+          if(this.current_kind >= 4)
+            this.current_kind = 1
+          else
+            this.current_kind++
+          /*
+          var m =[]
+          for(var i = 0; i < roads["features"].length; i++) {
+            if(roads["features"][i]["properties"]["Kind"] == this.current_kind)
+              m.push(i);
+          }*/
+          this.$http.get('http://localhost:8000/get_map/?kind='+this.current_kind)
+            .then(function(response){
+                if(response.data.error_num != 0)
+                    alert(response.data.msg)
+                else
+                {
+                  this.map_list = response.data.msg
+                  this.startDraw()
+                }
+                console.log(response.data.msg)
+            })
+            .catch((error)=>{
+                alert(error)
+            })
+        
       },
   },
   mounted() {
+      
     this.drawRoad()
   }
 }
@@ -298,8 +347,9 @@ export default {
 
 <style lang="stylus" scoped>
   .main{
-      height:95%;
-      height:95%;
+      
+      height:100%;
+      height:100%;
   }
   .vue-leaflet{
       width:100%;
@@ -307,22 +357,27 @@ export default {
       box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   }
   .left{
-      margin 20px 10px;
+      position:absolute;
+      z-index 200;
       width: 50%;
-      height: 95%;
-      float:left;
+      height: 100%;
       text-align:center;
   }
   .right{
-      width: 47%;
-      height: 80%;
-      float:left;
-      text-align:center;
+  width 600px
+  height 100%
+  position absolute
+  top 50px
+  right 0
+  z-index 20
   }
   .chart{
-      margin-top:20px;
+      margin-top 15px;
+      background: linear-gradient(to right, rgba(62,73,103,0.7), rgba(48,58,88,1));
+      box-shadow 8px 8px 8px rgba(0, 0,0, 0.5);
+      margin-bottom 5px;
       width: 100%;
-      height: 50%;
+      height: 500px;
       box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   }
   .input{
@@ -355,14 +410,38 @@ export default {
     padding: 10px 0;
     background-color: #f9fafc;
   }
-  .font-show{
+  .block-bg{
+    border-radius:6px; 
+    color: #c0c4cc; 
+    margin:5px 0; 
+    background: linear-gradient(to right, rgba(62,73,103,0.7), rgba(48,58,88,1));
+    box-shadow 8px 8px 8px rgba(0, 0,0, 0.5);   
+  }
+  .font-bg{
+    color: #c0c4cc
     font-family:"微软雅黑";
-    font-size: 1.4em;
+    font-size: 1em;
+  }
+  .font-show{
+    color #13ffd7
+    font-family:"微软雅黑";
+    font-size: 1em;
   }
   .allCenter{
     display:flex;
     justify-content:center;
     align-items:center;
-    color:black;
   }
+  .menu
+    position absolute
+    left 40px
+    bottom 20px
+  .button
+        background: #303a58;
+        border: 1px solid #303a58;
+        color: #c0c4cc; 
+
+  .button:hover
+        background: #303a58;
+        color #13ffd7
 </style>

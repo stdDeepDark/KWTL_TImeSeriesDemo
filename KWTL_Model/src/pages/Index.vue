@@ -11,7 +11,7 @@
             <router-link to="/timeSeries2">亦庄</router-link>
         </div>
         <div>
-            <router-link to="/page1">数据</router-link>
+            <router-link to="/dmap">数据</router-link>
         </div>
         <div>
             <router-link to="/page2">模型</router-link>
