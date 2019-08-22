@@ -48,25 +48,39 @@
                    <div style=" margin:5px 0px;"class="block-bg allCenter">
                     <i style="margin-right:2px"class="el-icon-time"></i>
                     <a class="font-show">2015-04 from</a>
-                    <el-input type='number' size="small" style="margin:5px; width:60px" min='1' :max='day2' v-model="day1"></el-input>
+                    <el-input type='number' size="small" style="margin:5px; width:60px" min='1' :max='h1==23&&h2==0||h1+1>h2?day2-1:day2' v-model="day1"></el-input>
                     <a class="font-show">-</a>
-                    <el-input type="number" size="small" style="margin:5px; width:60px"  min="0" :max="day1==day2?h2:23" v-model="h1"></el-input>
+                    <el-input type="number" size="small" style="margin:5px; width:60px"  min="0" :max="day1==day2?h2-1:23" v-model="h1"></el-input>
                     <a class="font-show">:</a>
-                    <el-input type="number" size="small" style="margin:5px; width:60px"  min="0" :max="day1==day2&&h1==h2?m2:59" v-model="m1"></el-input>
+                    <el-input type="number" size="small" style="margin:5px; width:60px"  min="0" :max="day1==day2&&h1+1==h2||day1+1==day2&&h1==23&&h2==0?m2:59" v-model="m1"></el-input>
                     <a class="font-show">to</a>
-                    <el-input type='number' size="small" style="margin:5px; width:60px"  :min='day1' max='30'  v-model="day2"></el-input>
+                    <el-input type='number' size="small" style="margin:5px; width:60px"  :min='h1==23&&h2==0||h1+1>h2?day1+1:day1' max='30'  v-model="day2"></el-input>
                     <a class="font-show">-</a>
-                    <el-input type="number" size="small" style="margin:5px; width:60px"  :min="day1==day2?h1:0" max="23" v-model="h2"></el-input>
+                    <el-input type="number" size="small" style="margin:5px; width:60px"  :min="day1==day2?h1+1:0" max="23" v-model="h2"></el-input>
                     <a class="font-show">:</a>
-                    <el-input type="number" size="small" style="margin:5px; width:60px"  :min="day1==day2&&h1==h2?m1:0" max="59" v-model="m2"></el-input>
+                    <el-input type="number" size="small" style="margin:5px; width:60px"  :min="day1==day2&&h1+1==h2||day1+1==day2&&h1==23&&h2==0?m1:0" max="59" v-model="m2"></el-input>
                  </div>
-
-                  <div class="block-bg">
-                     <span style="height:30px"class="font-show allCenter">预测范围</span>
-                    <el-slider style="margin-left:20px"
+                  <div style="display:flex; width:100%">
+                  <div class="block-bg" style="width:49%; margin-right:2%">
+                     <span style="height:30px width:50%"class="font-show allCenter">预测范围</span>
+                    <el-slider style="margin-left:10px"
                       v-model="aim"
+                      :min=10
+                      :max=200
                       show-input>
                     </el-slider>
+                  </div>
+
+                  <div class="block-bg" style="width:49%">
+                     <span style="height:30px width:50%"class="font-show allCenter">Epoch</span>
+                    <el-slider style="margin-left:10px"
+                      v-model="epoch"
+                      :min=50
+                      :max=200
+                      :step=10
+                      show-input>
+                    </el-slider>
+                  </div>
                   </div>
 
               <el-button class="button" v-on:click="drawChart"><i style="margin-right:20px"class="el-icon-data-line"></i>Update Chart</el-button>
@@ -100,6 +114,7 @@ import 'v-charts/lib/style.css';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import { constants } from 'crypto';
+import { loadavg } from 'os';
 Vue.use(ElementUI);
 
 delete L.Icon.Default.prototype._getIconUrl
@@ -123,14 +138,14 @@ export default {
     VeLine
   },
   data () {
-    var aim=4
+    var aim=50
     var name=""
       var id=""
       var length=""
       var pinyin=""
       var v_data = [0]
       var map_list =[]
-      var day1=1,day2=1,h1=0,m1=0,h2=0,m2=4
+      var day1=1,day2=1,h1=0,m1=0,h2=1,m2=4
       //var that = this
     return {
       chartExtend: {
@@ -159,9 +174,10 @@ export default {
       }
       },
       chartData: {
-          columns: ['Time', 'real_velocity', 'linear_regression'],
+          columns: ['Time', 'real_velocity', 'linear_regression','lstm'],
           rows: []
         },
+      epoch:100,
       aim:aim,
       day1:day1,
       day2:day2,
@@ -206,12 +222,21 @@ export default {
             return
           }
 
+        const loading = this.$loading({
+          lock: true,
+          text: '模型训练中',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
+
         this.chartData.rows=[]
         var rows=[]
         var x = [],y = [];
         var i
+        var data =[]
         for(i = (this.day1-1)*24*60 + this.h1*60 + this.m1; i < (this.day2-1)*24*60 + this.h2*60 + this.m2; i++)
         {
+            data.push(this.v_data[i])
             let row={}
             row['Time']=this.num2time(i)
             row['real_velocity']=this.v_data[i]
@@ -226,33 +251,63 @@ export default {
         regressionModel = new SLR(x, y);
         console.log(regressionModel.toString(3));
         
-         let row={}
-          row['Time']=this.num2time(i-1)
-           row['real_velocity']=this.v_data[i]
-          row['linear_regression']=this.v_data[i]
-          rows.push(row)
-          i++;
+        let row={}
+        row['Time']=this.num2time(i-1)
+        row['real_velocity']=this.v_data[i]
+        row['linear_regression']=this.v_data[i]
+        row['lstm']=this.v_data[i]
+        rows.push(row)
+        
+        data.push(this.v_data[i])
+        
+        i++;
+        var lstm_data
+
+        this.$http.get('http://115.28.163.137:8000/get_lstm/?mapid='+this.id+"&data="+data+"&num="+this.aim+"&epoch="+this.epoch)
+        .then(function(response){
+            if(response.data.error_num != 0)
+                alert(response.data.msg)
+            else
+                lstm_data = response.data.msg
+            console.log(response.data.msg)
+
           for(var u = 0; u < this.aim; u++){
             let row={}
             row['Time']=this.num2time(i+u)
-             row['real_velocity']=this.v_data[i+u]
+            row['real_velocity']=this.v_data[i+u]
+            row['lstm']=lstm_data[u]
             row['linear_regression']=regressionModel.predict(parseFloat(i+u))
             rows.push(row)
           }
           this.chartData.rows=rows
-       
+          loading.close();
+        })
+        .catch((error)=>{
+            loading.close();
+            alert(error)
+        })
+
+          
     },
     load_data:function(){
-      this.$http.get('http://localhost:8000/load_data/?file='+this.id)
+     // http://25871m8b19.zicp.vip:16559/
+     const loading = this.$loading({
+          lock: true,
+          text: '数据加载中',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
+      this.$http.get('http://115.28.163.137:8000/load_data/?file='+this.id)
         .then(function(response){
             if(response.data.error_num != 0)
                 alert(response.data.msg)
             else
                 this.v_data = response.data.msg
-            console.log(response.data.msg)
+            loading.close();
         })
         .catch((error)=>{
             alert(error)
+            loading.close();
         })
     },
     lineClick:function($event,Pindex,polyline){
@@ -296,7 +351,7 @@ export default {
             if(roads["features"][i]["properties"]["Kind"] == this.current_kind)
               m.push(i);
           }*/
-          this.$http.get('http://localhost:8000/get_map/?kind='+this.current_kind)
+          this.$http.get('http://115.28.163.137:8000/get_map/?kind='+this.current_kind)
             .then(function(response){
                 if(response.data.error_num != 0)
                     alert(response.data.msg)

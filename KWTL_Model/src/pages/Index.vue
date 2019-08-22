@@ -5,17 +5,19 @@
 
     <div class="links">
         <div>
-            <router-link to="/timeSeries">通州</router-link>
+            <router-link to="">个体行为预测Demo</router-link>
+        </div>
+    
+        <div>
+            <router-link to="/hazardousArticle">危险品Demo</router-link>
         </div>
         <div>
-            <router-link to="/timeSeries2">亦庄</router-link>
+            <router-link to="/cityGroup">城市组团Demo</router-link>
         </div>
         <div>
-            <router-link to="/dmap">数据</router-link>
+            <router-link to="/timeSeries">时间序列Demo</router-link>
         </div>
-        <div>
-            <router-link to="/page2">模型</router-link>
-        </div>
+        
     </div>
 </div>
 </template>
